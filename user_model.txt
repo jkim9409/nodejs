@@ -1,0 +1,20 @@
+const mongoose = require("mongoose");
+
+// models 라는 폴더 안에 user.js 라는 이름으로 저장된 mongoose 라이브러리를 사용하는 모델이다. 
+//Joi 라는 라이버러리를 사용해서 사용자 이메일, 비밀번호 등이 형식에 맞는지 
+// 확인해 주는것을 구현해 보자 !!
+const UserSchema = new mongoose.Schema({
+  email: String,
+  nickname: String,
+  password: String,
+});
+
+// 프론트 엔드에서 userID 값을 참조하고 있다.!
+// mongodb 에서 제공하는 기본 dataId 값을 빼서 쓰는법
+UserSchema.virtual("userId").get(function () {
+  return this._id.toHexString();
+});
+UserSchema.set("toJSON", {
+  virtuals: true,
+});
+module.exports = mongoose.model("User", UserSchema);
