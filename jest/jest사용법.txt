@@ -1,0 +1,30 @@
+제스트는 가장 유명한 자바스크립트 테스팅 라이브러리이다.
+
+npm init -y 후에 jest 를 받아준다.
+npm i jest - D 
+
+package.json 에 들어가서, "test"의 value 값을 "jest" 로바꾼후 저장.
+
+"test": "echo \"Error: no test specified\" && exit 1" 로되있는걸
+"test":"jest" 이렇게 
+
+이제 터미널에 npm run test 혹은 npm test 를 타입하면 jest를 실행할수 있는데 어떻게 쓰는것일까
+우선 테스트코드파일 을 하나 만들어준다. 테스트할파일이름.spec.js 
+// 기본 형식 
+// const { isEmail } = require('./validation');
+
+// test('테스트가 성공하는 상황', () => {
+//     expect(isEmail('이메일이 아니에요')).toEqual(false);
+// });
+
+// test('테스트가 실패하는 상황', () => {
+//     expect(isEmail('my-email@domain.com')).toEqual(true);
+// });
+
+
+
+그다음에 npm test 치면 알아서 .spec.js 파일 을 찾은후 테스트한 값을 돌려준다.
+
+
+이런것을 TDD 라고 한다! Test Driven Development
+그럼 BDD 는 뭘까?? behavior driven Development

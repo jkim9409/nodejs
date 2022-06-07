@@ -1,0 +1,28 @@
+prettier.config.js 파일 만들고 다음 코드 복붙 
+
+module.exports = {
+    trailingComma: 'es5',
+    tabWidth: 2,
+    semi: true,
+    singleQuote: true,
+    arrowParens: 'always',
+}
+
+
+
+프리티어 dev Dependency 로 다운받기
+npm i prettier -D 
+
+
+
+
+package.json 들어가서 추가해주기
+"scripts": {
+    "prettify": "prettier --write *.js **/*.js"
+  },
+
+프리티어 실행 
+npm run prettify
+
+
+아니면 익스텐션을 받은다음 파일 내에서 우클릭해서 사용할 수도 있다.
