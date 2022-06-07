@@ -1,0 +1,17 @@
+socket.io 를 쓰면 web socket 을 쓰는 브라우저 (ex, chrome) 혹은 web socket 을 사용하지 않는 브라우저 (ex, internet explorer)
+모두에게 소켓 구현을 해 줄수 있다. 
+
+
+소켓모듈 받기
+npm i socket.io -S
+
+프론트앤드 소켓 이벤트 핸들링 코드
+socket.on("customEventName", (data) => {
+  console.log(data);
+});
+
+소켓은 한 브라우저에 한개만 있고 이런게 아니다.
+
+체팅도 소켓io로 구현할 수 있으니 나중에 기회가 되면 꼭 해보자! ( socket.rooms)
+
+http는 언제 쓰이고 socket은 언제 쓰이는지. 그리고 그 차이점들을 잘 알아두자 !. 

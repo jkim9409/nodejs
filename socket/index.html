@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="https://cdn.socket.io/socket.io-3.0.1.min.js"></script>
+    <title>Hello Socket.io!</title>
+  </head>
+  <body>
+    <script>
+    // 3000번 포트로 연결할 수 있는지 소켓을 socket.io 로 연결하는 코드
+      const socket = io("ws://localhost:3000");
+      socket.on("connect", () => {
+        socket.send("Hello!");
+      });
+    //   메세지가 오면 소켓을 콘솔에 찍어주는 코드
+      socket.on("message", (data) => {
+        console.log(data);
+      });
+
+      //프론트앤드 소켓 이벤트 핸들링 코드/
+      // 서버에서 "customEventName" 이 글자의 이벤트를 데이터로 보낼 수 있다.
+      socket.on("customEventName", (data) => {
+          console.log("커스텀이벤트네임",data);
+      });
+      
+    </script>
+  </body>
+</html>

@@ -5,11 +5,38 @@
 // 마지막엔 mongoose 를 지워도 잘 작동할수 있도록 해보자 !
 // TCP 와 UDP의 차이점은 무엇일지 조사해보기
 // Socket의 개념과 Web socket에대해서 조사해보기
+// socket을 이용해서 쇼핑몰 실시간 구매알림 구현해보기
+// 실시간 카운터 기능 구현 (CHANGED_PAGE 이벤트) (socket.on()사용)
+// SAME_PAGE_VIEWER_COUNT 이벤트에 2 이상인 값을 보내면서 상세 페이지에서 
+// 총 n 명이 이 상품을 구경하고 있습니다. 라는 문구 표현 (io.emit() 이나 브로드케스트 사용)
+// socket.on("CHANGED_PAGE",(data) => {
+//  console.log("페이지기바뀌었어요",data,socket.id);
+//})
+// 위에서 보면 socket.id 는 소켓마다 고유한 아이디를 뽑을수 있다.(연결이 끊어지면 사라짐)
+
+// "BUY_GOODS" 이벤트시 :
+// {
+// 	nickname: '서버가 보내준 구매자 닉네임',
+// 	goodsId: 10, // 서버가 보내준 상품 데이터 고유 ID
+// 	goodsName: '서버가 보내준 구매자가 구매한 상품 이름',
+// 	date: '서버가 보내준 구매 일시'
+// }
+// "BUY"이벤트 시 
+// {
+// 	nickname: '로그인한 사용자 닉네임',
+// 	goodsId: 10, // 로그인한 사용자가 구매한 상품 고유 ID
+// 	goodsName: '로그인한 사용자가 구매한 상품 이름',
+// }
 const express = require("express");
 const mongoose = require("mongoose");
 //구현해놓은 유저 model 을 참조하기! (mongoose 를 사용할때 이런방식으로 했다)
 // sequelize 를 사용하며 바뀐 코드로 대체하였다.
 // const User = require("./models/user");
+
+//http 와 socketio 모듈을 불러온다
+const Http = require("http");
+const socketIo = require("socket.io");
+
 
 // sequelize 에서 제공하는 Op라는 객체를 참조할 것이다.
 const { Op } = require("sequelize");
@@ -43,7 +70,61 @@ const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error:"));
 
 const app = express();
+
+//소켓을 사용하기 위해 기존 app서버 위에 https 서버를 구축한다
+// 기존 app서버또한 http 모듈을 상속한 express로 만들었기 때문에 같이 사용할수있다.
+// wrapping 을 했다고 생각하자.
+const http = Http.createServer(app);
+// cors 처리가 필요없다. 왜냐하면 모든 asset 파일들을 statics 미들웨어로
+// express를 통해서 제공하고 있기때문에 내 서버에 소켓io를 연결하고있기때문
+// 즉 요청하는 서버와 나의 도메인이 다르지 않다
+const io = socketIo(http);
+
 const router = express.Router();
+
+
+io.on("connection", (socket) => {
+    console.log("누군가 연결했어요!");
+
+    //커스텀이벤트를 소켓에 담아서 보내줘 보자. 프론트앤드에서 요청한 형식대로!
+    // 하지만 BUY 라는 이벤트가 있을 때에만 보내줘야 된다. 그에 맞는 데이터를 보내줘야한다.
+    // 그러니 다른곳에 들어가야 하는 코드이다.
+    // socket.emit("BUY_GOODS", {
+    //     nickname: '서버가 보내준 구매자 닉네임',
+    //     goodsId: 10, // 서버가 보내준 상품 데이터 고유 ID
+    //     goodsName: '서버가 보내준 구매자가 구매한 상품 이름',
+    //     date: '서버가 보내준 구매 일시'
+    // });
+    
+    //BUY 라는 이벤트에 반응 할 준비를 해야한다
+    // new Date() 이벤트의 시간을 객체로 만들어서 반환 해 줄수 있다. 
+    // socket.on("BUY", (data) => {
+    //     console.log("클라이언트가 구매한 데이터", data, new Date().toISOString());
+    // });
+    socket.on("BUY", (data) => {
+        const payload = {
+            nickname: data.nickname,
+            goodsId: data.goodsId,
+            goodsName: data.goodsName,
+            date: new Date().toISOString(),
+        }
+        console.log("클라이언트가 구매한 데이터", data, new Date());
+        
+        //이제 모든 유저들한테 보낼것인데 socket.~~~ 대신 io.~~~을 사용할 것이다
+        // 관리자는 BUY_GOODS 이벤트를 보내고 그에맞는 data들을 보낼것이다.
+        // BUY 이벤트를 만든 사람 본인한테도 보내질 것이다. 
+        // io.emit("BUY_GOODS", payload);
+        
+        //본인의 소켓은 제외하고 모두에게 데이터를 전달하는 방법이있다.
+        socket.broadcast.emit("BUY_GOODS",payload); 
+    });
+
+
+    // 누군가 연결을 끊었을 때도 알수 있다. 이또한 리스너 이다.   
+    socket.on("disconnect",() => {
+        console.log("누군가 연결을 끊었어요.!");
+    });
+});
 
 //미들웨어를 지나치게하려면 url 주소 옆에 미들웨어를 적어준다
 // auth미들웨어는 인증이 성공하면 res.locals.user 객체 안에 회원정보를 담아두게끔 구현되어있다. 
@@ -173,6 +254,13 @@ router.post("/auth", async (req,res) => {
 app.use("/api", express.urlencoded({ extended: false }), router);
 app.use(express.static("assets"));
 
-app.listen(8080, () => {
+
+// app으로 서버를 키지 않고 소켓을 사용할 때는 http로 서버를 켜야하니 잠시 꺼두자
+// app.listen(8080, () => {
+//   console.log("서버가 요청을 받을 준비가 됐어요");
+// });
+
+// http로 서버를 켜준다!
+http.listen(8080, () => {
   console.log("서버가 요청을 받을 준비가 됐어요");
 });
