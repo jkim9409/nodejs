@@ -27,4 +27,7 @@ package.json 에 들어가서, "test"의 value 값을 "jest" 로바꾼후 저장
 
 
 이런것을 TDD 라고 한다! Test Driven Development
-그럼 BDD 는 뭘까?? behavior driven Development
+그럼 BDD 는 뭘까?? behavior Driven Development
+그럼 DDD 는 뭘까?? Domain Driven Development
+
+다 한번씩 찾아보자

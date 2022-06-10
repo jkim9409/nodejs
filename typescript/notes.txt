@@ -1,0 +1,10 @@
+Open CLI and type
+npm i -g @nestjs/cli
+
+Then create nest project and choose package manager (npm/yarn)
+nest new nest-crash-course
+
+Open VS Code and type
+npm run start:dev
+
+Now you can see "hello world" in localhost:3000
